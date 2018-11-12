@@ -1,0 +1,34 @@
+{
+  "name": "simple-express",
+  "version": "1.0.0",
+  "description": "Simple express app with two routes",
+  "main": "app.js",
+  "bin": "app.js",
+  "scripts": {
+    "build": "pkg package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rimaulana/simple-express.git"
+  },
+  "keywords": [
+    "express",
+    "docker",
+    "node"
+  ],
+  "author": "Rio Maulana <rimaulana@outlook.com> (https://github.com/rimaulana)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/rimaulana/simple-express/issues"
+  },
+  "homepage": "https://github.com/rimaulana/simple-express#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "morgan": "^1.9.1"
+  },
+  "pkg": {
+    "targets": [
+      "node10-alpine-x64"
+    ]
+  }
+}
