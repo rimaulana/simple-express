@@ -1,6 +1,6 @@
 {
   "name": "simple-express",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple express app with two routes",
   "main": "app.js",
   "bin": "app.js",
