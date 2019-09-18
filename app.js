@@ -8,12 +8,13 @@ const app = express();
 const metadataURL = 'http://169.254.170.2/v2/metadata/';
 const port = process.env.PORT || 3000;
 const timeout = 1000;
-let taskID = '';
-let serverIP = '';
+const pathRoute = process.env.PATH_ROUTE || "default";
 const startTime = Math.floor(new Date() / 1000);
 
-morgan.token('task-id', () => taskID);
+let taskID = '';
+let serverIP = '';
 
+morgan.token('task-id', () => taskID);
 morgan.token('server-ip', () => serverIP);
 
 const getServerInfo = async () => {
@@ -68,6 +69,14 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
+});
+
+app.get('/:path', (req, res) => {
+  if (req.params.path == pathRoute) {
+    res.status(200).json({ 'task-id': taskID, 'server-ip': serverIP });
+  } else {
+    res.status(404).json({ message: "path not found" });
+  }
 });
 
 app.get('/slow/:time', (req, res) => {
