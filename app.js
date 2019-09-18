@@ -6,14 +6,15 @@ const fs = require('fs');
 
 const app = express();
 const metadataURL = 'http://169.254.170.2/v2/metadata/';
-const port = 4000;
+const port = process.env.PORT || 3000;
 const timeout = 1000;
-let taskID = '';
-let serverIP = '';
+const pathRoute = process.env.PATH_ROUTE || "default";
 const startTime = Math.floor(new Date() / 1000);
 
-morgan.token('task-id', () => taskID);
+let taskID = '';
+let serverIP = '';
 
+morgan.token('task-id', () => taskID);
 morgan.token('server-ip', () => serverIP);
 
 const getServerInfo = async () => {
@@ -26,8 +27,17 @@ const getServerInfo = async () => {
     const res = await axios.get(metadataURL, { timeout });
     // eslint-disable-next-line prefer-destructuring
     serverIP = res.data.Containers[0].Networks[0].IPv4Addresses[0];
+    // support for fargate task
+    taskID = res.data.TaskARN;
     return { id: taskID, ip: serverIP };
   } catch (error) {
+    // Added support running as Kubernetes pod
+    if (process.env.SERVER_IP) {
+      serverIP = process.env.SERVER_IP
+    }
+    if (process.env.POD_ID) {
+      taskID = process.env.POD_ID
+    }
     return { id: taskID, ip: serverIP };
   }
 };
@@ -59,6 +69,14 @@ app.get('/', (req, res) => {
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
+});
+
+app.get('/:path', (req, res) => {
+  if (req.params.path == pathRoute) {
+    res.status(200).json({ 'task-id': taskID, 'server-ip': serverIP });
+  } else {
+    res.status(404).json({ message: "path not found" });
+  }
 });
 
 app.get('/slow/:time', (req, res) => {
