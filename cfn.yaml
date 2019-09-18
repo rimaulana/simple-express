@@ -1,5 +1,17 @@
+Parameters:
+  ApplicationPort:
+    Type: Number
+    Default: 3000
+  
+  SlowStart:
+    Type: Number
+    Default: 300
+
 Resources:
-  taskDef:
+  awslogs:
+    Type: AWS::Logs::LogGroup
+
+  awsvpc:
     Type: AWS::ECS::TaskDefinition
     Properties:
       Cpu: "256"
@@ -17,20 +29,20 @@ Resources:
         HealthCheck:
           Command: 
           - CMD-SHELL
-          - curl -f http://localhost:4000/slow/300 || exit 1
+          - !Sub 'curl -f http://localhost:${ApplicationPort}/slow/${SlowStart} || exit 1'
           Interval: 10
           Retries: 4
-          StartPeriod: 300
+          StartPeriod: !Ref SlowStart
           Timeout: 5
         Image: rimaulana/simple-express
         LogConfiguration:
           LogDriver: awslogs
           Options:
-            awslogs-group: "ecs/simple-express"
-            awslogs-region: "us-east-1"
+            awslogs-group: !Ref awslogs
+            awslogs-region: !Ref AWS::Region
             awslogs-stream-prefix: "log"
         MemoryReservation: 256
         Name: node 
         PortMappings:
-        - ContainerPort: 4000
+        - ContainerPort: !Ref ApplicationPort
           Protocol: tcp
