@@ -1,0 +1,36 @@
+Resources:
+  taskDef:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Cpu: "256"
+      ExecutionRoleArn: arn:aws:iam::460449571267:role/ecsTaskExecutionRole
+      Memory: "512"
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+      - EC2
+      - FARGATE
+      ContainerDefinitions:
+      - Environment:
+        - Name: LOG_TYPE
+          Value: json
+        Essential: true 
+        HealthCheck:
+          Command: 
+          - CMD-SHELL
+          - curl -f http://localhost:4000/slow/300 || exit 1
+          Interval: 10
+          Retries: 4
+          StartPeriod: 300
+          Timeout: 5
+        Image: rimaulana/simple-express
+        LogConfiguration:
+          LogDriver: awslogs
+          Options:
+            awslogs-group: "ecs/simple-express"
+            awslogs-region: "us-east-1"
+            awslogs-stream-prefix: "log"
+        MemoryReservation: 256
+        Name: node 
+        PortMappings:
+        - ContainerPort: 4000
+          Protocol: tcp
